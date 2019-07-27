@@ -19,11 +19,11 @@
 */
 
 // Include palTown song
-#include "palTown.h"
+#include "bike.h"
 
 // Pinouts
 #define PIN_SPEAKER 2 // Output
-#define PIN_BUTTON  3 // Input Pullup
+#define PIN_BUTTON  3 // Input
 #define PIN_LED     4 // Output
 
 // Toggle play on or off
@@ -39,14 +39,14 @@ void setup() {
   // Setup inputs and outputs
   pinMode(PIN_SPEAKER, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
-  pinMode(PIN_BUTTON, INPUT_PULLUP);
+  pinMode(PIN_BUTTON, INPUT);
 
   // Ensure speaker & LED are low (off)
   digitalWrite(PIN_SPEAKER, LOW);
   digitalWrite(PIN_LED, LOW);
 
   // Attach interrupt to button to trigger when pressed
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON), musicToggle, LOW);
+  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON), musicToggle, HIGH);
 }
 
 // Arduino Loop
@@ -54,5 +54,5 @@ void loop() {
 
   // If play is enabled, play song
   if(play)
-    palTown();
+    bike();
 }
