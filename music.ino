@@ -20,39 +20,76 @@
 
 // Include palTown song
 #include "bike.h"
+#include "palTown.h"
 
 // Pinouts
-#define PIN_SPEAKER 2 // Output
-#define PIN_BUTTON  3 // Input
-#define PIN_LED     4 // Output
+#define PIN_SPEAKER     2  // Output
+#define PIN_BTN_PLAY    3  // Input
+#define PIN_BTN_SWTCH   5  // Input
+#define PIN_LED_PLAY    13 // Output
+
+#define PIN_LED_SWTCH_1 4  // Output
+#define PIN_LED_SWTCH_2 5  // Output
+
+// Highest song index starting with 0
+#define SONGS_MAX_INDEX 2
+
+byte songSel = 0;
+
+// Switches songs
+void musicSwitch()
+{
+  Serial.println("I'm here");
+  
+  songSel++;
+  
+  if(songSel > SONGS_MAX_INDEX)
+    songSel = 0;
+
+  digitalWrite(PIN_LED_SWTCH_1, (songSel & 1) > 0);
+  digitalWrite(PIN_LED_SWTCH_2, (songSel & 2) > 0);
+}
 
 // Toggle play on or off
 void musicToggle()
 {
   play = !play;
-  digitalWrite(PIN_LED, play);
+  digitalWrite(PIN_LED_PLAY, play);
 }
 
 // Arduino Setup
 void setup() {
 
+  Serial.begin(9600);
+
   // Setup inputs and outputs
   pinMode(PIN_SPEAKER, OUTPUT);
-  pinMode(PIN_LED, OUTPUT);
-  pinMode(PIN_BUTTON, INPUT);
+  pinMode(PIN_LED_PLAY, OUTPUT);
+  pinMode(PIN_BTN_PLAY, INPUT);
+  pinMode(PIN_BTN_SWTCH, INPUT);
+  pinMode(PIN_LED_SWTCH_1, OUTPUT);
+  pinMode(PIN_LED_SWTCH_2, OUTPUT);
 
-  // Ensure speaker & LED are low (off)
+  // Ensure speaker & LEDs are low (off)
   digitalWrite(PIN_SPEAKER, LOW);
-  digitalWrite(PIN_LED, LOW);
+  digitalWrite(PIN_LED_PLAY, LOW);
+  digitalWrite(PIN_LED_SWTCH_1, LOW);
+  digitalWrite(PIN_LED_SWTCH_2, LOW);
 
   // Attach interrupt to button to trigger when pressed
-  attachInterrupt(digitalPinToInterrupt(PIN_BUTTON), musicToggle, HIGH);
+  attachInterrupt(digitalPinToInterrupt(PIN_BTN_PLAY), musicToggle, HIGH);
+  attachInterrupt(digitalPinToInterrupt(PIN_BTN_SWTCH), musicSwitch, HIGH);
 }
 
 // Arduino Loop
 void loop() {
+  // If play is enabled
+  if(!play)
+    return;
 
-  // If play is enabled, play song
-  if(play)
+  // Play correct song
+  if(songSel == 0)
+    palTown();
+  else if(songSel == 1)
     bike();
 }
